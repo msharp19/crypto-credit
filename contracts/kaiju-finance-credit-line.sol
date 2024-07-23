@@ -25,6 +25,7 @@ contract KaijuFinanceCreditLine is Ownable, ReentrancyGuard
     mapping(address => uint256[]) _usersCredit;
 
     event CreditCreated(uint256 indexed Id, uint256 AmountLent, uint256 AmountExpected, string indexed symbol, uint256 paybackDate, uint256 CreatedAt);
+    event CreditPaidBackAt(uint256 indexed Id, uint256 LateFees, uint256 CreatedAt);
 
     function issueCredit(address user, uint256 amountLent, uint256 amountExpected, string memory symbol, uint256 paybackDate) external onlyOwner nonReentrant{
         // Create credit line
@@ -34,7 +35,7 @@ contract KaijuFinanceCreditLine is Ownable, ReentrancyGuard
         _usersCredit[user].push(_allCredit.length);
 
         // Fire event
-        emit CreditCreated(credit.Id, amountLent, amountExpected, symbol, paybackDate, block.timestamp);
+        emit CreditCreated(credit.Id, amountLent, amountExpected, symbol, paybackDate, credit.CreatedAt);
     }
 
     function payBackCredit(address user, uint256 id, uint256 lateFee) external nonReentrant onlyOwner {
@@ -55,6 +56,8 @@ contract KaijuFinanceCreditLine is Ownable, ReentrancyGuard
                 credit.PaidBackAt = block.timestamp;
                 credit.LateFee = lateFee;
                 credit.Active = false;
+
+                emit CreditPaidBackAt(credit.Id, lateFee, credit.PaidBackAt);
             }
         }
 
