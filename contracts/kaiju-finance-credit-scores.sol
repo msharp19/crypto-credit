@@ -4,7 +4,7 @@ pragma solidity =0.8.12.0;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-contract CreditStakeScores is Ownable, ReentrancyGuard
+contract KaijuFinanceCreditScores is Ownable, ReentrancyGuard
 {
     struct CreditScore {
         string OverallScore;
@@ -24,4 +24,6 @@ contract CreditStakeScores is Ownable, ReentrancyGuard
 
         return creditScore;
     }
+	
+	
 }

@@ -4,7 +4,7 @@ pragma solidity =0.8.12.0;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-contract CreditStakeToken is Ownable, ReentrancyGuard
+contract KaijuFinanceStakeLockup is Ownable, ReentrancyGuard
 {
     struct Stake {
        uint256 Id;
