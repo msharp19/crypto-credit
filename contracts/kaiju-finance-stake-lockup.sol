@@ -3,6 +3,7 @@ pragma solidity =0.8.12.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract KaijuFinanceStakeLockup is Ownable, ReentrancyGuard
 {
@@ -23,6 +24,12 @@ contract KaijuFinanceStakeLockup is Ownable, ReentrancyGuard
 
     mapping(address => Stake[]) _allUsersStakes;
 
+    IERC20 _kaijuFinanceToken;
+
+    constructor(address kaijuFinanceTokenAddress){
+        _kaijuFinanceToken = IERC20(kaijuFinanceTokenAddress);
+    }
+
     event EthStaked(uint256 indexed Id, address indexed user, uint256 AmountStaked, uint256 AmountToReceive, uint256 CreatedAt);
     event StakeCollected(uint256 indexed Id, address indexed user, uint256 AmountReceived, uint256 CollectedAt);
  
@@ -40,7 +47,10 @@ contract KaijuFinanceStakeLockup is Ownable, ReentrancyGuard
         Stake memory newStake = Stake(_currentStakeId++, msg.value, amountToReceive, block.timestamp, canCollectAt, 0, true);
         _allUsersStakes[msg.sender].push(newStake);
 
-        emit EthStaked(_currentStakeId++, msg.sender, msg.value, amountToReceive, block.timestamp);
+        // TODO: Reference the kaiju token contract definition NOT IERC20
+        _kaijuFinanceToken.mint(msg.sender, amountToReceive);
+
+        emit EthStaked(newStake.Id, msg.sender, msg.value, amountToReceive, block.timestamp);
     }
 
     function withdrawStake(uint256 id) external nonReentrant {
@@ -64,6 +74,12 @@ contract KaijuFinanceStakeLockup is Ownable, ReentrancyGuard
 
                 // Ensure contract has enough to honor the withdraw
                 require(address(this).balance >= userStake.AmountToReceive, 'The contract needs additional funding before this can be completed');
+
+                // Ensure can collect tokens
+                require(_kaijuFinanceToken.allowance(msg.sender, address(this)) == userStake.AmountToReceive, 'Please approve the exact amount of tokens required');
+ 
+                // Collect
+                _kaijuFinanceToken.safeTransferFrom(msg.sender, address(this), userStake.AmountToReceive);
 
                 // Mark as collected
                 userStake.CollectedAt = block.timestamp;
