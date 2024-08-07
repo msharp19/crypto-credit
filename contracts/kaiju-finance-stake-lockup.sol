@@ -67,20 +67,28 @@ contract KaijuFinanceStakeLockup is Ownable, ReentrancyGuard
         _kaijuFinanceCreditLine = ICreditLine(kaijuFinanceCreditLineAddress);
     }
 
-    event EthStaked(uint256 indexed Id, address indexed user, uint256 AmountStaked, uint256 AmountToReceive, uint256 CreatedAt);
+    event EthStaked(uint256 indexed Id, address indexed user, uint256 AmountStaked, uint256 CreatedAt);
     event StakeCollected(uint256 indexed Id, address indexed user, uint256 AmountReceived, uint256 CollectedAt);
 
     function updateSupportedToken(string memory name, string memory symbol, address contractAddress) external onlyOwner nonReentrant{
         SupportedToken memory supportedToken = SupportedToken(name, symbol, contractAddress, 1, true);
-        _supportedTokens[contractAddress].Name = name;
+        _supportedTokens[contractAddress] = supportedToken;
+    }
+
+    function getMaximumWithdrawalAmount(address sender) public returns(uint256) {
+        // Get the users current staked amount
+        uint256 currentStakeAmount = _usersCurrentStakeTotals[sender];
+        
+        // Get the amount required for collateral
+        uint256 amountRequiredForCollateral = _kaijuFinanceCreditLine.getCollateralAmount(sender);
+
+        // Get the amount left staked excluding the amount required for collateral
+        return (currentStakeAmount - amountRequiredForCollateral);
     }
  
     function stake() external payable nonReentrant{       
         // Validate stake amount
         require(msg.value >= _minimumStakeAmount, 'Minimum stake amount not met');
-
-        // Calculate the amount to recieve after lockup
-        uint256 amountToReceive = msg.value * _earnRate;
 
         // Create new stake record
         Stake memory newStake = Stake(_currentStakeId++, msg.sender, msg.value, block.timestamp, true);
@@ -91,18 +99,16 @@ contract KaijuFinanceStakeLockup is Ownable, ReentrancyGuard
         _usersCurrentStakeTotals[msg.sender] = usersCurrentStakeTotal + msg.value;
 
         // TODO: Reference the kaiju token contract definition NOT IERC20
-        _kaijuFinanceLiquidStakingToken.mint(msg.sender, amountToReceive);
+        //_kaijuFinanceLiquidStakingToken.mint(msg.sender, msg.value);
 
-        emit EthStaked(newStake.Id, msg.sender, msg.value, amountToReceive, block.timestamp);
+        emit EthStaked(newStake.Id, msg.sender, msg.value, block.timestamp);
     }
 
     function withdrawStake(uint256 amount) external nonReentrant {
 
-        uint256 currentStakeAmount = _usersCurrentStakeTotals[msg.sender];
-
         // Ensure credit isnt already on loan
-        uint256 amountRequiredForCollateral = _kaijuFinanceCreditLine.getCollateralAmount(msg.sender);
-        require((currentStakeAmount - amountRequiredForCollateral) > amount, 'The withdraw will reduce the collateral below what is required since there is an active loan. Please try a lower amount');
+        uint256 maximumWithdrawAmount = getMaximumWithdrawalAmount(msg.sender);
+        require(maximumWithdrawAmount >= amount, 'The withdraw will reduce the collateral below what is required since there is an active loan. Please try a lower amount');
 
         // Ensure contract has enough to honor the withdraw
          require(address(this).balance >= amount, 'The contract needs additional funding before this can be completed');
@@ -111,20 +117,21 @@ contract KaijuFinanceStakeLockup is Ownable, ReentrancyGuard
         require(_kaijuFinanceLiquidStakingToken.allowance(msg.sender, address(this)) == amount, 'Please approve the exact amount of tokens required');
  
         // Collect
-        _kaijuFinanceLiquidStakingToken.safeTransferFrom(msg.sender, address(this), amount);
+        //_kaijuFinanceLiquidStakingToken.safeTransferFrom(msg.sender, address(this), amount);
 
         // Mark as collected
-        _usersCurrentStakeTotals[msg.sender] = (currentStakeAmount - amountRequiredForCollateral);
+        _usersCurrentStakeTotals[msg.sender] -= amount;
         
         // Create a record
         WithdrawnStake memory stakeWithdrawal = WithdrawnStake(_currentWithdrawnStakeId++, msg.sender, amount, block.timestamp, true);
         _allWithdrawnStakes.push(stakeWithdrawal);
-        uint256 newWithdrawnStakeIndex = _allUsersWithdrawnStakes.length-1;
+        uint256 newWithdrawnStakeIndex = _allWithdrawnStakes.length-1;
         _allUsersWithdrawnStakes[msg.sender].push(newWithdrawnStakeIndex);
 
         // Send back value
         payable(msg.sender).transfer(amount);
 
+        // Fire event
         emit StakeCollected(stakeWithdrawal.Id, msg.sender, amount, block.timestamp);
     }
 }
