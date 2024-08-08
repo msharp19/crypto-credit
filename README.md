@@ -1,4 +1,4 @@
-# crypto-credit
+# Distributed Loans :credit_card:
 
 A distributed credit system using Solidity
 
