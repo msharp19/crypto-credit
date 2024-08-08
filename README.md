@@ -26,12 +26,12 @@ Deployed for testing.
 
 Deployers Address: 0x60e1C4DfB97e920D6C227cff4a0f39C4B560224B
 
-| Contract      | Address       | Owner Address | Network       |
-| ------------- | ------------- | ------------- | ------------- |
-| Finance Liquid Token | [0xcdAD459fEEE277DfEE22856D763feb55EdF963ba]([https://sepolia.etherscan.io/address/#readContract](https://sepolia.etherscan.io/address/0xcdad459feee277dfee22856d763feb55edf963ba#code))     | TBC.          | Sepolia       | 
-| Finance Reward Token | [0xc962e4bdE44632caA916f0689904306E470ed93C]([https://sepolia.etherscan.io/address/#readContract](https://sepolia.etherscan.io/address/0xc962e4bde44632caa916f0689904306e470ed93c#code))          | TBC.          | Sepolia       |
-| Credit Line          | [0x61f84f38575b73655cBa43bf1e9F3D4FC7a85332]([https://sepolia.etherscan.io/address/#readContract](https://sepolia.etherscan.io/address/0x61f84f38575b73655cba43bf1e9f3d4fc7a85332#code))        | 0x60e1C4DfB97e920D6C227cff4a0f39C4B560224B | Sepolia       |
-| Stake Lockup         | [0x3D6DC33633F739321C1116506a2dDdf1C1b9B014]([https://sepolia.etherscan.io/address/#readContract](https://sepolia.etherscan.io/address/0x3d6dc33633f739321c1116506a2dddf1c1b9b014#code))          | 0x60e1C4DfB97e920D6C227cff4a0f39C4B560224B | Sepolia       |
+| Contract      | Address       | Network       |
+| ------------- | ------------- | ------------- |
+| Finance Liquid Token | [0xcdAD459fEEE277DfEE22856D763feb55EdF963ba]([https://sepolia.etherscan.io/address/#readContract](https://sepolia.etherscan.io/address/0xcdad459feee277dfee22856d763feb55edf963ba#code))     | Sepolia       | 
+| Finance Reward Token | [0xc962e4bdE44632caA916f0689904306E470ed93C]([https://sepolia.etherscan.io/address/#readContract](https://sepolia.etherscan.io/address/0xc962e4bde44632caa916f0689904306e470ed93c#code))          | Sepolia       |
+| Credit Line          | [0x61f84f38575b73655cBa43bf1e9F3D4FC7a85332]([https://sepolia.etherscan.io/address/#readContract](https://sepolia.etherscan.io/address/0x61f84f38575b73655cba43bf1e9f3d4fc7a85332#code))        |  Sepolia       |
+| Stake Lockup         | [0x3D6DC33633F739321C1116506a2dDdf1C1b9B014]([https://sepolia.etherscan.io/address/#readContract](https://sepolia.etherscan.io/address/0x3d6dc33633f739321c1116506a2dddf1c1b9b014#code))          | Sepolia       |
 
 ## Deploy Steps
 
