@@ -3,6 +3,11 @@ pragma solidity =0.8.12.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
+interface IKaijuFinanceERC20Token is IERC20 {
+    function mint(address user, uint256 amount) external;
+}
 
 contract KaijuFinanceCreditLine is Ownable, ReentrancyGuard
 {
@@ -19,16 +24,24 @@ contract KaijuFinanceCreditLine is Ownable, ReentrancyGuard
         uint256 LateFee;
     }
 
-    uint256 _currentCreditId = 1;
-    uint256 _collateralPercentToIssue = 20;
+    uint256 private _currentCreditId = 1;
+    uint256 private _collateralPercentToIssue = 20;
+    uint256 private _rewardPercentToIssue = 5;
 
-    Credit[] _allCredit;
-    mapping(address => uint256[]) _usersCreditIndex;
-    mapping(address => uint256) _usersCurrentCreditIndex;
+    Credit[] private _allCredit;
+    mapping(address => uint256[]) private _usersCreditIndex;
+    mapping(address => uint256) private _usersCurrentCreditIndex;
+    IKaijuFinanceERC20Token private _kaijuFinanceRewardToken;
 
-    event CreditCreated(uint256 indexed Id, uint256 AmountLent, uint256 AmountExpected, string indexed symbol, uint256 paybackDate, uint256 CreatedAt);
-    event CreditPaidBackAt(uint256 indexed Id, uint256 LateFees, uint256 CreatedAt);
-    event CollateralPercentToIssueUpdated(address User, uint256 Percent, uint256 Timestamp);
+    event CreditCreated(uint256 indexed id, uint256 amountLent, uint256 amountExpected, string indexed symbol, uint256 paybackDate, uint256 createdAt);
+    event CreditPaidBackAt(uint256 indexed id, uint256 lateFees, uint256 createdAt);
+    event CollateralPercentToIssueUpdated(address indexed user, uint256 percent, uint256 timestamp);
+    event RewardPercentToIssueUpdated(address indexed user, uint256 percent, uint256 timestamp);
+    event RewardIssued(address indexed user, uint256 amountToReward, uint256 rewardPercentToIssue, uint256 timestamp);
+
+    constructor(address kaijuFinanceRewardTokenAddress){
+        _kaijuFinanceRewardToken = IKaijuFinanceERC20Token(kaijuFinanceRewardTokenAddress);
+    }
 
     function issueCredit(address user, uint256 amountLent, uint256 amountExpected, string memory symbol, uint256 paybackDate) external onlyOwner nonReentrant
     {
@@ -73,6 +86,25 @@ contract KaijuFinanceCreditLine is Ownable, ReentrancyGuard
 
         // Fire event
         emit CreditPaidBackAt(usersCurrentCreditLine.Id, lateFee, usersCurrentCreditLine.PaidBackAt);
+
+        // If no late fees were incurred then tokens can be issued as reward
+        if(lateFee == 0)
+        {
+            // Get amount to reward
+            uint256 amountToReward = getAmountToReward(usersCurrentCreditLine.AmountLent);
+
+            // Reward user
+            _kaijuFinanceRewardToken.mint(usersCurrentCreditLine.User, amountToReward);
+
+            // Fire event
+            emit RewardIssued(user, amountToReward, _rewardPercentToIssue, block.timestamp);
+        }
+    }
+
+    function getAmountToReward(uint256 amountLent) public view returns(uint256) 
+    {
+        // This is assuming 1:1 token to credit issuance 
+        return (amountLent / 100) * _rewardPercentToIssue;
     }
 
     function updateCollateralPercentToIssue(uint256 percent) external onlyOwner 
@@ -85,6 +117,18 @@ contract KaijuFinanceCreditLine is Ownable, ReentrancyGuard
 
         // Fire event
         emit CollateralPercentToIssueUpdated(msg.sender, percent, block.timestamp);
+    }
+
+    function updateRewardPercentToIssue(uint256 percent) external onlyOwner 
+    {
+        // Ensure percent is between 0 and 100
+        require(percent < 100, 'Value must be between 1 and 100');
+
+        // Update
+        _rewardPercentToIssue = percent;
+
+        // Fire event
+        emit RewardPercentToIssueUpdated(msg.sender, percent, block.timestamp);
     }
 
     function getCollateralPercentToIssue() external view returns(uint256)
