@@ -22,7 +22,9 @@ A contract that allows a user to stake and get credit as a percentage of the sta
 
 ## Test Dapps
 
-Deployed for testing
+Deployed for testing.
+
+Deployers Address: 0x60e1C4DfB97e920D6C227cff4a0f39C4B560224B
 
 | Contract      | Address       | Owner Address | Network       | Blockchain Explorer |
 | ------------- | ------------- | ------------- | ------------- | ------------- |
