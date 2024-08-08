@@ -5,8 +5,9 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-interface IMintableToken is IERC20 {
+interface IKaijuFinanceERC20Token is IERC20 {
     function mint(address user, uint256 amount) external;
+    function transferFrom(address from, address to, uint256 value) external returns (bool);
 }
 
 interface ICreditLine {
@@ -15,8 +16,6 @@ interface ICreditLine {
 
 contract KaijuFinanceStakeLockup is Ownable, ReentrancyGuard 
 {
-    //using SafeMath for uint256;
-
     struct Stake {
        uint256 Id;
        address Owner;
@@ -33,47 +32,27 @@ contract KaijuFinanceStakeLockup is Ownable, ReentrancyGuard
        bool Active;
     }
 
-    struct SupportedToken {
-       string Name;
-       string Symbol;
-       address Address;
-       uint256 TokenRate;
-       bool Active;
-    }
+    uint256 private _minimumStakeAmount  = 1000000000000000;
+    uint256 private _currentStakeId = 1;
+    uint256 private _currentWithdrawnStakeId = 1;
 
-    struct TotalActiveStake {
-        uint256 Value;
-    }
+    Stake[] private _allStakes;
+    WithdrawnStake[] private _allWithdrawnStakes;
 
-    uint256 _minimumStakeAmount = 1000000000000000;
-    uint256 _earnRate = 1;
-    uint256 _currentStakeId = 1;
-    uint256 _currentWithdrawnStakeId = 1;
+    mapping(address => uint256[]) private _allUsersStakes;
+    mapping(address => uint256[]) private _allUsersWithdrawnStakes;
+    mapping(address => uint256) private _usersCurrentStakeTotals;
 
-    Stake[] _allStakes;
-    WithdrawnStake[] _allWithdrawnStakes;
-
-    mapping(address => uint256[]) _allUsersStakes;
-    mapping(address => uint256[]) _allUsersWithdrawnStakes;
-    mapping(address => uint256) _usersCurrentStakeTotals;
-
-    mapping(address => SupportedToken) _supportedTokens;
-
-    IERC20 _kaijuFinanceLiquidStakingToken;
-    ICreditLine _kaijuFinanceCreditLine;
+    IKaijuFinanceERC20Token private _kaijuFinanceLiquidStakingToken;
+    ICreditLine private _kaijuFinanceCreditLine;
 
     constructor(address kaijuFinanceLiquidStakingTokenAddress, address kaijuFinanceCreditLineAddress){
-        _kaijuFinanceLiquidStakingToken = IERC20(kaijuFinanceLiquidStakingTokenAddress);
+        _kaijuFinanceLiquidStakingToken = IKaijuFinanceERC20Token(kaijuFinanceLiquidStakingTokenAddress);
         _kaijuFinanceCreditLine = ICreditLine(kaijuFinanceCreditLineAddress);
     }
 
     event EthStaked(uint256 indexed Id, address indexed user, uint256 AmountStaked, uint256 CreatedAt);
     event StakeCollected(uint256 indexed Id, address indexed user, uint256 AmountReceived, uint256 CollectedAt);
-
-    function updateSupportedToken(string memory name, string memory symbol, address contractAddress) external onlyOwner nonReentrant{
-        SupportedToken memory supportedToken = SupportedToken(name, symbol, contractAddress, 1, true);
-        _supportedTokens[contractAddress] = supportedToken;
-    }
 
     function getMaximumWithdrawalAmount(address sender) public returns(uint256) {
         // Get the users current staked amount
@@ -90,17 +69,22 @@ contract KaijuFinanceStakeLockup is Ownable, ReentrancyGuard
         // Validate stake amount
         require(msg.value >= _minimumStakeAmount, 'Minimum stake amount not met');
 
-        // Create new stake record
+        // Create new stake record and add it
         Stake memory newStake = Stake(_currentStakeId++, msg.sender, msg.value, block.timestamp, true);
         _allStakes.push(newStake);
+
+        // Calculate the new index and add index to users stakes
         uint256 newStakeIndex = _allStakes.length-1;
         _allUsersStakes[msg.sender].push(newStakeIndex);
+
+        // Update users stake total
         uint256 usersCurrentStakeTotal = _usersCurrentStakeTotals[msg.sender];
         _usersCurrentStakeTotals[msg.sender] = usersCurrentStakeTotal + msg.value;
 
-        // TODO: Reference the kaiju token contract definition NOT IERC20
-        //_kaijuFinanceLiquidStakingToken.mint(msg.sender, msg.value);
+        // Mint the liquid staking tokens
+        _kaijuFinanceLiquidStakingToken.mint(msg.sender, msg.value);
 
+        // Fire contract event indicatin Eth has been staked
         emit EthStaked(newStake.Id, msg.sender, msg.value, block.timestamp);
     }
 
@@ -117,7 +101,7 @@ contract KaijuFinanceStakeLockup is Ownable, ReentrancyGuard
         require(_kaijuFinanceLiquidStakingToken.allowance(msg.sender, address(this)) == amount, 'Please approve the exact amount of tokens required');
  
         // Collect
-        //_kaijuFinanceLiquidStakingToken.safeTransferFrom(msg.sender, address(this), amount);
+        _kaijuFinanceLiquidStakingToken.transferFrom(msg.sender, address(this), amount);
 
         // Mark as collected
         _usersCurrentStakeTotals[msg.sender] -= amount;
@@ -131,7 +115,183 @@ contract KaijuFinanceStakeLockup is Ownable, ReentrancyGuard
         // Send back value
         payable(msg.sender).transfer(amount);
 
-        // Fire event
+        // Fire contract event indication that a stake has been withdrawn by a user
         emit StakeCollected(stakeWithdrawal.Id, msg.sender, amount, block.timestamp);
+    }
+
+    // Get and return a users staked total
+    function getStakeTotal(address user) view external returns(uint256){
+         return _usersCurrentStakeTotals[user];
+    }
+
+    // Get and return a stake by its id (id is +1 of index)
+    function getStake(uint256 stakeId) view external returns(Stake memory){
+         return _allStakes[stakeId - 1];
+    }
+
+    // Get and return a page of stakes
+    function getPageOfStakes(uint256 pageNumber, uint256 perPage) public view returns(Stake[] memory){
+        // Get the total amount remaining
+        uint256 totalStakes = _allStakes.length;
+
+        // Get the index to start from
+        uint256 startingIndex = pageNumber * perPage;
+
+        // The number of stakes that will be returned (to set array)
+        uint256 remaining = totalStakes - startingIndex;
+        uint256 pageSize = ((startingIndex+1)>totalStakes) ? 0 : (remaining < perPage) ? remaining : perPage;
+
+        // Create the page
+        Stake[] memory pageOfStakes = new Stake[](pageSize);
+
+        // Add each item to the page
+        uint256 pageItemIndex = 0;
+        for(uint256 i = startingIndex;i < (startingIndex + pageSize);i++){
+           
+           // Get the stake 
+           Stake memory addedStake = _allStakes[i];
+
+           // Add to page
+           pageOfStakes[pageItemIndex] = addedStake;
+
+           // Increment page item index
+           pageItemIndex++;
+        }
+
+        return pageOfStakes;
+    }
+
+    // Get and return a page of stakes
+    function getPageOfUsersStakes(address user, uint256 pageNumber, uint256 perPage) public view returns(Stake[] memory){
+        
+        uint256[] memory usersStakeIndexes = _allUsersStakes[user];
+
+        // Get the total amount remaining
+        uint256 totalStakes = usersStakeIndexes.length;
+
+        // Get the index to start from
+        uint256 startingIndex = pageNumber * perPage;
+
+        // The number of stakes that will be returned (to set array)
+        uint256 remaining = totalStakes - startingIndex;
+        uint256 pageSize = ((startingIndex+1)>totalStakes) ? 0 : (remaining < perPage) ? remaining : perPage;
+
+        // Create the page
+        Stake[] memory pageOfStakes = new Stake[](pageSize);
+
+        // Add each item to the page
+        uint256 pageItemIndex = 0;
+        for(uint256 i = startingIndex;i < (startingIndex + pageSize);i++)
+        {   
+           // Get the stake 
+           Stake memory usersStake = _allStakes[usersStakeIndexes[i]];
+
+           // Add to page
+           pageOfStakes[pageItemIndex] = usersStake;
+
+           // Increment page item index
+           pageItemIndex++;
+        }
+
+        return pageOfStakes;
+    }
+
+     // Get and return a page of withdrawn stakes
+    function getPageOfWithdrawnStakesAscending(uint256 pageNumber, uint256 perPage) public view returns(WithdrawnStake[] memory){
+        // Get the total amount remaining
+        uint256 totalWithdrawnStakes = _allWithdrawnStakes.length;
+
+        // Get the index to start from
+        uint256 startingIndex = pageNumber * perPage;
+
+        // The number of stakes that will be returned (to set array)
+        uint256 remaining = totalWithdrawnStakes - startingIndex;
+        uint256 pageSize = ((startingIndex+1)>totalWithdrawnStakes) ? 0 : (remaining < perPage) ? remaining : perPage;
+
+        // Create the page
+        WithdrawnStake[] memory pageOfWithdrawnStakes = new WithdrawnStake[](pageSize);
+
+        // Add each item to the page
+        uint256 pageItemIndex = 0;
+        for(uint256 i = startingIndex;i < (startingIndex + pageSize);i++){
+           
+           // Get the stake 
+           WithdrawnStake memory addedStake = _allWithdrawnStakes[i];
+
+           // Add to page
+           pageOfWithdrawnStakes[pageItemIndex] = addedStake;
+
+           // Increment page item index
+           pageItemIndex++;
+        }
+
+        return pageOfWithdrawnStakes;
+    }
+
+         // Get and return a page of withdrawn stakes
+    function getPageOfWithdrawnStakesDescending(uint256 pageNumber, uint256 perPage) public view returns(WithdrawnStake[] memory){
+        // Get the total amount remaining
+        uint256 totalWithdrawnStakes = _allWithdrawnStakes.length;
+
+        // Get the index to start from
+        uint256 startingIndex = totalWithdrawnStakes - (pageNumber * perPage);
+
+        // The number of stakes that will be returned (to set array)
+        uint256 remaining = totalWithdrawnStakes - (pageNumber * perPage);
+        uint256 pageSize = ((startingIndex+1)>totalWithdrawnStakes) ? 0 : (remaining < perPage) ? remaining : perPage;
+
+        // Create the page
+        WithdrawnStake[] memory pageOfWithdrawnStakes = new WithdrawnStake[](pageSize);
+
+        // Add each item to the page
+        uint256 pageItemIndex = 0;
+        for(uint256 i = startingIndex;i > 0;i--){
+           
+           // Get the stake 
+           WithdrawnStake memory addedStake = _allWithdrawnStakes[i];
+
+           // Add to page
+           pageOfWithdrawnStakes[pageItemIndex] = addedStake;
+
+           // Increment page item index
+           pageItemIndex++;
+        }
+
+        return pageOfWithdrawnStakes;
+    }
+
+    // Get and return a page of stakes
+    function getPageOfUsersWithdrawnStakes(address user, uint256 pageNumber, uint256 perPage) public view returns(WithdrawnStake[] memory){
+        
+        uint256[] memory usersStakeIndexes = _allUsersWithdrawnStakes[user];
+
+        // Get the total amount remaining
+        uint256 totalStakes = usersStakeIndexes.length;
+
+        // Get the index to start from
+        uint256 startingIndex = pageNumber * perPage;
+
+        // The number of stakes that will be returned (to set array)
+        uint256 remaining = totalStakes - startingIndex;
+        uint256 pageSize = ((startingIndex+1)>totalStakes) ? 0 : (remaining < perPage) ? remaining : perPage;
+
+        // Create the page
+        WithdrawnStake[] memory pageOfWithdrawnStakes = new WithdrawnStake[](pageSize);
+
+        // Add each item to the page
+        uint256 pageItemIndex = 0;
+        for(uint256 i = startingIndex;i < (startingIndex + pageSize);i++)
+        {   
+           // Get the stake 
+           WithdrawnStake memory usersStake = _allWithdrawnStakes[usersStakeIndexes[i]];
+
+           // Add to page
+           pageOfWithdrawnStakes[pageItemIndex] = usersStake;
+
+           // Increment page item index
+           pageItemIndex++;
+        }
+
+        return pageOfWithdrawnStakes;
     }
 }
