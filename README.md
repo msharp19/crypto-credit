@@ -6,7 +6,9 @@ A distributed credit system using Solidity
 
 1. Deploy liquid token and reward token
 2. Deploy credit line using the reward token address as a constructor arg
-3. Deploy Stake lockup using the credit line address and the liquid token address as the constructor args
+3. Set owner of reward token as credit line contract
+4. Deploy Stake lockup using the credit line address and the liquid token address as the constructor args
+5. Set owner of liquid token as the stake lockup contract
 
 ## Workflow
 
