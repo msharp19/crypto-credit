@@ -2,5 +2,5 @@
 pragma solidity =0.8.12.0;
 
 interface IKaijuFinanceCreditLine {
-    function getRequiredCollateralAmount(address user) external returns(uint256);
+    function getRequiredCollateralAmount(address user) external view returns(uint256);
 }
