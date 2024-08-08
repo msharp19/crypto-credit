@@ -25,7 +25,6 @@ contract KaijuFinanceStakeLockup is Ownable, ReentrancyGuard
        bool Active;
     }
 
-
     uint256 private _minimumStakeAmount  = 1000000000000000;
     uint256 private _currentStakeId = 1;
     uint256 private _currentWithdrawnStakeId = 1;
@@ -48,7 +47,7 @@ contract KaijuFinanceStakeLockup is Ownable, ReentrancyGuard
     event EthStaked(uint256 indexed id, address indexed user, uint256 amountStaked, uint256 createdAt);
     event StakeCollected(uint256 indexed id, address indexed user, uint256 amountReceived, uint256 collectedAt);
 
-    function getMaximumWithdrawalAmount(address user) public returns(uint256) {
+    function getMaximumWithdrawalAmount(address user) public view returns(uint256) {
         // Get the users current staked amount
         uint256 currentStakeAmount = _usersCurrentStakeTotals[user];
         
