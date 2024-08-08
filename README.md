@@ -31,7 +31,7 @@ Deployers Address: 0x60e1C4DfB97e920D6C227cff4a0f39C4B560224B
 | Finance Liquid Token | TBC.          | TBC.          | Sepolia       | [Sepolina Etherscan](https://sepolia.etherscan.io/address/#readContract) |
 | Finance Reward Token | TBC.          | TBC.          | Sepolia       | [Sepolina Etherscan](https://sepolia.etherscan.io/address/#readContract) |
 | Credit Line          | TBC.          | TBC.          | Sepolia       | [Sepolina Etherscan](https://sepolia.etherscan.io/address/#readContract) |
-| Stake Lockup         | TBC.          | TBC.          | Sepolia       | [Sepolina Etherscan](https://sepolia.etherscan.io/address/#readContract) |
+| Stake Lockup         | TBC.          | 0x60e1C4DfB97e920D6C227cff4a0f39C4B560224B          | Sepolia       | [Sepolina Etherscan](https://sepolia.etherscan.io/address/#readContract) |
 
 ## Deploy Steps
 
