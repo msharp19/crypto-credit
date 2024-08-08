@@ -102,6 +102,7 @@ contract KaijuFinanceCreditLine is Ownable, ReentrancyGuard
     function getCollateralAmount(address user) external view returns(uint256)
     {
         uint256 usersCreditTotal = getUsersActiveCreditIssuedTotal(user);
-
+        
+        return (usersCreditTotal / _collateralPercentToIssue) * 100;
     }
 }
