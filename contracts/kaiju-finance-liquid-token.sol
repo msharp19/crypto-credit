@@ -15,7 +15,7 @@ contract KaijuFinanceLiquidToken is IERC20, ERC20, Ownable, ReentrancyGuard
         _mint(user, amount);
     }
 
-    function burn(uint256 amount) public onlyOwner nonReentrant{
-        _burn(amount);
+    function burn(address user, uint256 amount) public onlyOwner nonReentrant{
+        _burn(user, amount);
     }
 }
