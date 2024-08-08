@@ -2,6 +2,24 @@
 
 A distributed credit system using Solidity
 
+## Contracts
+
+### Finance Liquid Token
+
+A token issued upon stake and burned with the withdrawal of that stake
+
+### Finance Reward Token
+
+A token issued as a reward for on time payments of loans (no late fees)
+
+### Credit Line
+
+A contract that tracks credit being issued and paid back to a user (externally).
+
+### Stake Lockup
+
+A contract that allows a user to stake and get credit as a percentage of the stake (externally). The contract also allows for the withdraw of stakes given they are not in use as collateral for an active loan. 
+
 ## Deploy Steps
 
 1. Deploy liquid token and reward token
