@@ -39,8 +39,8 @@ contract KaijuFinanceStakeLockup is Ownable, ReentrancyGuard
     Stake[] private _allStakes;
     WithdrawnStake[] private _allWithdrawnStakes;
 
-    mapping(address => uint256[]) private _allUsersStakes;
-    mapping(address => uint256[]) private _allUsersWithdrawnStakes;
+    mapping(address => uint256[]) private _allUsersStakeIndexs;
+    mapping(address => uint256[]) private _allUsersWithdrawnStakeIndexs;
     mapping(address => uint256) private _usersCurrentStakeTotals;
 
     IKaijuFinanceERC20Token private _kaijuFinanceLiquidStakingToken;
@@ -75,7 +75,7 @@ contract KaijuFinanceStakeLockup is Ownable, ReentrancyGuard
 
         // Calculate the new index and add index to users stakes
         uint256 newStakeIndex = _allStakes.length-1;
-        _allUsersStakes[msg.sender].push(newStakeIndex);
+        _allUsersStakeIndexs[msg.sender].push(newStakeIndex);
 
         // Update users stake total
         uint256 usersCurrentStakeTotal = _usersCurrentStakeTotals[msg.sender];
@@ -110,7 +110,7 @@ contract KaijuFinanceStakeLockup is Ownable, ReentrancyGuard
         WithdrawnStake memory stakeWithdrawal = WithdrawnStake(_currentWithdrawnStakeId++, msg.sender, amount, block.timestamp, true);
         _allWithdrawnStakes.push(stakeWithdrawal);
         uint256 newWithdrawnStakeIndex = _allWithdrawnStakes.length-1;
-        _allUsersWithdrawnStakes[msg.sender].push(newWithdrawnStakeIndex);
+        _allUsersWithdrawnStakeIndexs[msg.sender].push(newWithdrawnStakeIndex);
 
         // Send back value
         payable(msg.sender).transfer(amount);
@@ -164,7 +164,7 @@ contract KaijuFinanceStakeLockup is Ownable, ReentrancyGuard
     // Get and return a page of stakes
     function getPageOfUsersStakes(address user, uint256 pageNumber, uint256 perPage) public view returns(Stake[] memory){
         
-        uint256[] memory usersStakeIndexes = _allUsersStakes[user];
+        uint256[] memory usersStakeIndexes = _allUsersStakeIndexs[user];
 
         // Get the total amount remaining
         uint256 totalStakes = usersStakeIndexes.length;
@@ -263,7 +263,7 @@ contract KaijuFinanceStakeLockup is Ownable, ReentrancyGuard
     // Get and return a page of stakes
     function getPageOfUsersWithdrawnStakes(address user, uint256 pageNumber, uint256 perPage) public view returns(WithdrawnStake[] memory){
         
-        uint256[] memory usersStakeIndexes = _allUsersWithdrawnStakes[user];
+        uint256[] memory usersStakeIndexes = _allUsersWithdrawnStakeIndexs[user];
 
         // Get the total amount remaining
         uint256 totalStakes = usersStakeIndexes.length;
