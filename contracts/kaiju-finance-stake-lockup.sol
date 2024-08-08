@@ -11,7 +11,7 @@ interface IKaijuFinanceERC20Token is IERC20 {
 }
 
 interface ICreditLine {
-    function getCollateralAmount(address sender) external returns(uint256);
+    function getRequiredCollateralAmount(address user) external returns(uint256);
 }
 
 contract KaijuFinanceStakeLockup is Ownable, ReentrancyGuard 
@@ -59,7 +59,7 @@ contract KaijuFinanceStakeLockup is Ownable, ReentrancyGuard
         uint256 currentStakeAmount = _usersCurrentStakeTotals[user];
         
         // Get the amount required for collateral
-        uint256 amountRequiredForCollateral = _kaijuFinanceCreditLine.getCollateralAmount(user);
+        uint256 amountRequiredForCollateral = _kaijuFinanceCreditLine.getRequiredCollateralAmount(user);
 
         // Get the amount left staked excluding the amount required for collateral
         return (currentStakeAmount - amountRequiredForCollateral);
@@ -95,7 +95,7 @@ contract KaijuFinanceStakeLockup is Ownable, ReentrancyGuard
         require(maximumWithdrawAmount >= amount, 'The withdraw will reduce the collateral below what is required since there is an active loan. Please try a lower amount');
 
         // Ensure contract has enough to honor the withdraw
-         require(address(this).balance >= amount, 'The contract needs additional funding before this can be completed');
+        require(address(this).balance >= amount, 'The contract needs additional funding before this can be completed');
 
         // Ensure can collect tokens
         require(_kaijuFinanceLiquidStakingToken.allowance(msg.sender, address(this)) == amount, 'Please approve the exact amount of tokens required');
