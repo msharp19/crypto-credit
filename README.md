@@ -24,12 +24,12 @@ A contract that allows a user to stake and get credit as a percentage of the sta
 
 Deployed for testing
 
-| Contract      | Address       | Network       |
-| ------------- | ------------- | ------------- |
-| Finance Liquid Token | TBC.          | Sepolia       |
-| Finance Reward Token | TBC.          | Sepolia       |
-| Credit Line          | TBC.          | Sepolia       |
-| Stake Lockup         | TBC.          | Sepolia       |
+| Contract      | Address       | Owner Address | Network       |
+| ------------- | ------------- | ------------- | ------------- |
+| Finance Liquid Token | TBC.          | TBC.          | Sepolia       |
+| Finance Reward Token | TBC.          | TBC.          | Sepolia       |
+| Credit Line          | TBC.          | TBC.          | Sepolia       |
+| Stake Lockup         | TBC.          | TBC.          | Sepolia       |
 
 ## Deploy Steps
 
