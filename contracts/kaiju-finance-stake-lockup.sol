@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 interface IKaijuFinanceERC20Token is IERC20 {
     function mint(address user, uint256 amount) external;
-    function transferFrom(address from, address to, uint256 value) external returns (bool);
+    function burn(address from, uint256 value) external returns (bool);
 }
 
 interface ICreditLine {
@@ -101,7 +101,7 @@ contract KaijuFinanceStakeLockup is Ownable, ReentrancyGuard
         require(_kaijuFinanceLiquidStakingToken.allowance(msg.sender, address(this)) == amount, 'Please approve the exact amount of tokens required');
  
         // Collect
-        _kaijuFinanceLiquidStakingToken.transferFrom(msg.sender, address(this), amount);
+        _kaijuFinanceLiquidStakingToken.burn(msg.sender, amount);
 
         // Mark as collected
         _usersCurrentStakeTotals[msg.sender] -= amount;
