@@ -36,11 +36,11 @@ contract KaijuFinanceStakeLockup is Ownable, ReentrancyGuard
     mapping(address => uint256[]) private _allUsersWithdrawnStakeIndexs;
     mapping(address => uint256) private _usersCurrentStakeTotals;
 
-    IKaijuFinanceLiquidToken private _kaijuFinanceLiquidStakingToken;
+    IKaijuFinanceLiquidStakingToken private _kaijuFinanceLiquidStakingToken;
     IKaijuFinanceCreditLine private _kaijuFinanceCreditLine;
 
     constructor(address kaijuFinanceLiquidStakingTokenAddress, address kaijuFinanceCreditLineAddress){
-        _kaijuFinanceLiquidStakingToken = IKaijuFinanceLiquidToken(kaijuFinanceLiquidStakingTokenAddress);
+        _kaijuFinanceLiquidStakingToken = IKaijuFinanceLiquidStakingToken(kaijuFinanceLiquidStakingTokenAddress);
         _kaijuFinanceCreditLine = IKaijuFinanceCreditLine(kaijuFinanceCreditLineAddress);
     }
 
