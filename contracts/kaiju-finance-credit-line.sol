@@ -87,18 +87,8 @@ contract KaijuFinanceCreditLine is Ownable, ReentrancyGuard
         // Fire event
         emit CreditPaidBackAt(usersCurrentCreditLine.Id, lateFee, usersCurrentCreditLine.PaidBackAt);
 
-        // If no late fees were incurred then tokens can be issued as reward
-        if(lateFee == 0)
-        {
-            // Get amount to reward
-            uint256 amountToReward = getAmountToReward(usersCurrentCreditLine.AmountLent);
-
-            // Reward user
-            _kaijuFinanceRewardToken.mint(usersCurrentCreditLine.User, amountToReward);
-
-            // Fire event
-            emit RewardIssued(user, amountToReward, _rewardPercentToIssue, block.timestamp);
-        }
+        // Try to process reward
+        _tryProcessReward(usersCurrentCreditLine, lateFee);
     }
 
     function getAmountToReward(uint256 amountLent) public view returns(uint256) 
@@ -167,5 +157,21 @@ contract KaijuFinanceCreditLine is Ownable, ReentrancyGuard
         uint256 usersCreditTotal = getUsersActiveCreditIssuedTotal(user);
         
         return (usersCreditTotal / _collateralPercentToIssue) * 100;
+    }
+
+    function _tryProcessReward(Credit memory credit, uint256 lateFee) internal 
+    {
+        // If no late fees were incurred then tokens can be issued as reward
+        if(lateFee == 0)
+        {
+            // Get amount to reward
+            uint256 amountToReward = getAmountToReward(credit.AmountLent);
+
+            // Reward user
+            _kaijuFinanceRewardToken.mint(credit.User, amountToReward);
+
+            // Fire event
+            emit RewardIssued(credit.User, amountToReward, _rewardPercentToIssue, block.timestamp);
+        }
     }
 }
