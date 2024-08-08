@@ -51,15 +51,15 @@ contract KaijuFinanceStakeLockup is Ownable, ReentrancyGuard
         _kaijuFinanceCreditLine = ICreditLine(kaijuFinanceCreditLineAddress);
     }
 
-    event EthStaked(uint256 indexed Id, address indexed user, uint256 AmountStaked, uint256 CreatedAt);
-    event StakeCollected(uint256 indexed Id, address indexed user, uint256 AmountReceived, uint256 CollectedAt);
+    event EthStaked(uint256 indexed id, address indexed user, uint256 amountStaked, uint256 createdAt);
+    event StakeCollected(uint256 indexed id, address indexed user, uint256 amountReceived, uint256 collectedAt);
 
-    function getMaximumWithdrawalAmount(address sender) public returns(uint256) {
+    function getMaximumWithdrawalAmount(address user) public returns(uint256) {
         // Get the users current staked amount
-        uint256 currentStakeAmount = _usersCurrentStakeTotals[sender];
+        uint256 currentStakeAmount = _usersCurrentStakeTotals[user];
         
         // Get the amount required for collateral
-        uint256 amountRequiredForCollateral = _kaijuFinanceCreditLine.getCollateralAmount(sender);
+        uint256 amountRequiredForCollateral = _kaijuFinanceCreditLine.getCollateralAmount(user);
 
         // Get the amount left staked excluding the amount required for collateral
         return (currentStakeAmount - amountRequiredForCollateral);
