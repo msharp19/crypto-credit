@@ -1,5 +1,7 @@
 # crypto-credit
 
+A distributed credit system using Solidity
+
 ## Deploy Steps
 
 1. Deploy liquid token and reward token
