@@ -44,7 +44,7 @@ contract KaijuFinanceCreditLine is Ownable, ReentrancyGuard
     {
         // Check there isn't outstanding credit
         uint256 usersCurrentIssuedCreditTotal = getUsersActiveCreditIssuedTotal(user);
-        require(usersCurrentIssuedCreditTotal > 0,'User has outstanding credit line');
+        require(usersCurrentIssuedCreditTotal == 0,'User has outstanding credit line');
         
         // Create credit line
         Credit memory credit = Credit(_currentCreditId++, amountLent, amountExpected, user, symbol, paybackDate, block.timestamp, true, 0, 0);
