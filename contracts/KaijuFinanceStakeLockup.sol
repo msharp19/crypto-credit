@@ -25,6 +25,7 @@ contract KaijuFinanceStakeLockup is Ownable, ReentrancyGuard
        bool Active;
     }
 
+
     uint256 private _minimumStakeAmount  = 1000000000000000;
     uint256 private _currentStakeId = 1;
     uint256 private _currentWithdrawnStakeId = 1;
