@@ -22,11 +22,14 @@ A contract that allows a user to stake and get credit as a percentage of the sta
 
 ## Test Dapps
 
-TBC.
+Deployed for testing
 
 | Contract      | Address       | Network       |
 | ------------- | ------------- | ------------- |
 | Finance Liquid Token | TBC.          | Sepolia       |
+| Finance Reward Token | TBC.          | Sepolia       |
+| Credit Line          | TBC.          | Sepolia       |
+| Stake Lockup         | TBC.          | Sepolia       |
 
 ## Deploy Steps
 
