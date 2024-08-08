@@ -28,6 +28,7 @@ contract KaijuFinanceCreditLine is Ownable, ReentrancyGuard
 
     event CreditCreated(uint256 indexed Id, uint256 AmountLent, uint256 AmountExpected, string indexed symbol, uint256 paybackDate, uint256 CreatedAt);
     event CreditPaidBackAt(uint256 indexed Id, uint256 LateFees, uint256 CreatedAt);
+    event CollateralPercentToIssueUpdated(address User, uint256 Percent, uint256 Timestamp);
 
     function issueCredit(address user, uint256 amountLent, uint256 amountExpected, string memory symbol, uint256 paybackDate) external onlyOwner nonReentrant
     {
@@ -70,7 +71,25 @@ contract KaijuFinanceCreditLine is Ownable, ReentrancyGuard
         usersCurrentCreditLine.LateFee = lateFee;
         usersCurrentCreditLine.Active = false;
 
+        // Fire event
         emit CreditPaidBackAt(usersCurrentCreditLine.Id, lateFee, usersCurrentCreditLine.PaidBackAt);
+    }
+
+    function updateCollateralPercentToIssue(uint256 percent) external onlyOwner 
+    {
+        // Ensure percent is between 0 and 100
+        require(percent < 100, 'Value must be between 1 and 100');
+
+        // Update
+        _collateralPercentToIssue = percent;
+
+        // Fire event
+        emit CollateralPercentToIssueUpdated(msg.sender, percent, block.timestamp);
+    }
+
+    function getCollateralPercentToIssue() external view returns(uint256)
+    {
+        return _collateralPercentToIssue;
     }
 
     function getUsersActiveCreditIssuedTotal(address user) public view returns(uint256)
@@ -99,7 +118,7 @@ contract KaijuFinanceCreditLine is Ownable, ReentrancyGuard
         return 0;
     }
 
-    function getCollateralAmount(address user) external view returns(uint256)
+    function getRequiredCollateralAmount(address user) external view returns(uint256)
     {
         uint256 usersCreditTotal = getUsersActiveCreditIssuedTotal(user);
         
