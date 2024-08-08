@@ -43,7 +43,7 @@ Deployed for testing
 
 ![image](https://github.com/user-attachments/assets/f7ad107e-9ddd-40c3-b04f-cbe8669ae70a)
 
-![image](https://github.com/user-attachments/assets/fb5c81cd-cf0d-43c3-9c8a-8937784168b7)
+![image](https://github.com/user-attachments/assets/42543316-1ab8-4ab8-9dcb-03961035340f)
 
 ![image](https://github.com/user-attachments/assets/007f4aaa-43fb-4ce2-9c28-19a092e99dc1)
 
