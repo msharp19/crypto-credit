@@ -37,7 +37,7 @@ contract KaijuFinanceCreditLine is Ownable, ReentrancyGuard
     event RewardIssued(address indexed user, uint256 amountToReward, uint256 rewardPercentToIssue, uint256 timestamp);
 
     constructor(address kaijuFinanceRewardTokenAddress){
-        _kaijuFinanceRewardToken = IKaijuFinanceERC20Token(kaijuFinanceRewardTokenAddress);
+        _kaijuFinanceRewardToken = IKaijuFinanceRewardToken(kaijuFinanceRewardTokenAddress);
     }
 
     function issueCredit(address user, uint256 amountLent, uint256 amountExpected, string memory symbol, uint256 paybackDate) external onlyOwner nonReentrant
