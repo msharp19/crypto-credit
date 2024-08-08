@@ -4,10 +4,7 @@ pragma solidity =0.8.12.0;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-
-interface IKaijuFinanceERC20Token is IERC20 {
-    function mint(address user, uint256 amount) external;
-}
+import "https://raw.githubusercontent.com/msharp19/crypto-credit/main/contracts/interfaces/IKaijuFinanceRewardToken.sol";
 
 contract KaijuFinanceCreditLine is Ownable, ReentrancyGuard
 {
@@ -31,7 +28,7 @@ contract KaijuFinanceCreditLine is Ownable, ReentrancyGuard
     Credit[] private _allCredit;
     mapping(address => uint256[]) private _usersCreditIndex;
     mapping(address => uint256) private _usersCurrentCreditIndex;
-    IKaijuFinanceERC20Token private _kaijuFinanceRewardToken;
+    IKaijuFinanceRewardToken private _kaijuFinanceRewardToken;
 
     event CreditCreated(uint256 indexed id, uint256 amountLent, uint256 amountExpected, string indexed symbol, uint256 paybackDate, uint256 createdAt);
     event CreditPaidBackAt(uint256 indexed id, uint256 lateFees, uint256 createdAt);
