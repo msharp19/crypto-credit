@@ -97,9 +97,10 @@ contract KaijuFinanceStakeLockup is Ownable, ReentrancyGuard
         // Ensure contract has enough to honor the withdraw
         require(address(this).balance >= amount, 'The contract needs additional funding before this can be completed');
 
-        // Ensure can collect tokens
-        require(_kaijuFinanceLiquidStakingToken.allowance(msg.sender, address(this)) == amount, 'Please approve the exact amount of tokens required');
- 
+        // Ensure the user has the liquid staking tokens to burn
+        uint256 liquidTokenBalance = _kaijuFinanceLiquidStakingToken.balanceOf(msg.sender);
+        require(liquidTokenBalance >= amount, 'User does not have the liquid stake token balance to complete the withdrawal');
+
         // Collect
         _kaijuFinanceLiquidStakingToken.burn(msg.sender, amount);
 
