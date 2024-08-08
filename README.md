@@ -20,6 +20,14 @@ A contract that tracks credit being issued and paid back to a user (externally).
 
 A contract that allows a user to stake and get credit as a percentage of the stake (externally). The contract also allows for the withdraw of stakes given they are not in use as collateral for an active loan. 
 
+## Test Dapps
+
+TBC.
+
+| Contract      | Address       | Network       |
+| ------------- | ------------- | ------------- |
+| Finance Liquid Token | TBC.          | Sepolia       |
+
 ## Deploy Steps
 
 1. Deploy liquid token and reward token
