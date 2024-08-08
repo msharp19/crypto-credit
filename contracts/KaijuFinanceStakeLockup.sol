@@ -4,15 +4,8 @@ pragma solidity =0.8.12.0;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-
-interface IKaijuFinanceERC20Token is IERC20 {
-    function mint(address user, uint256 amount) external;
-    function burn(address from, uint256 value) external returns (bool);
-}
-
-interface ICreditLine {
-    function getRequiredCollateralAmount(address user) external returns(uint256);
-}
+import "https://raw.githubusercontent.com/msharp19/crypto-credit/main/contracts/interfaces/IKaijuFinanceCreditLine.sol";
+import "https://raw.githubusercontent.com/msharp19/crypto-credit/main/contracts/interfaces/IKaijuFinanceLiquidStakingToken.sol";
 
 contract KaijuFinanceStakeLockup is Ownable, ReentrancyGuard 
 {
@@ -43,12 +36,12 @@ contract KaijuFinanceStakeLockup is Ownable, ReentrancyGuard
     mapping(address => uint256[]) private _allUsersWithdrawnStakeIndexs;
     mapping(address => uint256) private _usersCurrentStakeTotals;
 
-    IKaijuFinanceERC20Token private _kaijuFinanceLiquidStakingToken;
-    ICreditLine private _kaijuFinanceCreditLine;
+    IKaijuFinanceLiquidToken private _kaijuFinanceLiquidStakingToken;
+    IKaijuFinanceCreditLine private _kaijuFinanceCreditLine;
 
     constructor(address kaijuFinanceLiquidStakingTokenAddress, address kaijuFinanceCreditLineAddress){
-        _kaijuFinanceLiquidStakingToken = IKaijuFinanceERC20Token(kaijuFinanceLiquidStakingTokenAddress);
-        _kaijuFinanceCreditLine = ICreditLine(kaijuFinanceCreditLineAddress);
+        _kaijuFinanceLiquidStakingToken = IKaijuFinanceLiquidToken(kaijuFinanceLiquidStakingTokenAddress);
+        _kaijuFinanceCreditLine = IKaijuFinanceCreditLine(kaijuFinanceCreditLineAddress);
     }
 
     event EthStaked(uint256 indexed id, address indexed user, uint256 amountStaked, uint256 createdAt);
