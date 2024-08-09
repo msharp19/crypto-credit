@@ -59,13 +59,13 @@ If no active credit exists for a user then a user can withdraw the staked value 
 
 ### Issue Credit
 
-The credit calls can only be done via the owner of the contract. The reason for this is that a centralized application will handle the allocation of the credit since it can be credited in a multitude of different currencies not on blockchain. This process should be done and confirmed before the credit is given in the centralized application. 
+The credit calls can only be done via the owner of the contract. The reason for this is that a centralized application will handle the allocation of the credit since it can be credited in a multitude of different currencies not necessarily on a blockchain. This process should be done and confirmed before the credit is given in the centralized application. 
 
 ![image](https://github.com/user-attachments/assets/007f4aaa-43fb-4ce2-9c28-19a092e99dc1)
 
 ### Payback
 
-The credit calls can only be done via the owner of the contract. The reason is because the user can pay back the loan using other currencioes not neccessarily on the blockchain. The user should pay back loan amount (+ late fees if any) before this call is made.
+The credit calls can only be done via the owner of the contract. The reason is because the user can pay back the loan using other currencioes not necessarily on a blockchain. The user should pay back loan amount (+ late fees if any) before this call is made.
 
 ![image](https://github.com/user-attachments/assets/7338619f-c9fd-4187-b632-c25f4b11aa34)
 
