@@ -45,25 +45,25 @@ Deployers Address: 0x60e1C4DfB97e920D6C227cff4a0f39C4B560224B
 
 There are 4 main parts to the service. 
 
-### Staking
+### 1. Staking
 
 For loans to be granted, a stake must exist. This is because the loan amount is a function of this stake amount which is used as collateral. 
 
 ![image](https://github.com/user-attachments/assets/f7ad107e-9ddd-40c3-b04f-cbe8669ae70a)
 
-### Withdrawing Stakes
+### 2. Withdrawing Stakes
 
 If no active credit exists for a user then a user can withdraw the staked value held in the lockup contract. If there is active credit then the user can only withdraw the fraction of the stake required as collateral. 
 
 ![image](https://github.com/user-attachments/assets/42543316-1ab8-4ab8-9dcb-03961035340f)
 
-### Issue Credit
+### 3. Issue Credit
 
 The credit calls can only be done via the owner of the contract. The reason for this is that a centralized application will handle the allocation of the credit since it can be credited in a multitude of different currencies not necessarily on a blockchain. This process should be done and confirmed before the credit is given in the centralized application. 
 
 ![image](https://github.com/user-attachments/assets/007f4aaa-43fb-4ce2-9c28-19a092e99dc1)
 
-### Payback
+### 4. Payback
 
 The credit calls can only be done via the owner of the contract. The reason is because the user can pay back the loan using other currencioes not necessarily on a blockchain. The user should pay back loan amount (+ late fees if any) before this call is made.
 
