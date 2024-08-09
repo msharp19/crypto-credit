@@ -124,7 +124,7 @@ contract KaijuFinanceStakeLockup is Ownable, ReentrancyGuard
     }
 
     // Get and return a page of stakes
-    function getPageOfStakes(uint256 pageNumber, uint256 perPage) public view returns(Stake[] memory){
+    function getPageOfStakesAscending(uint256 pageNumber, uint256 perPage) public view returns(Stake[] memory){
         // Get the total amount remaining
         uint256 totalStakes = _allStakes.length;
 
@@ -156,7 +156,36 @@ contract KaijuFinanceStakeLockup is Ownable, ReentrancyGuard
     }
 
     // Get and return a page of stakes
-    function getPageOfUsersStakes(address user, uint256 pageNumber, uint256 perPage) public view returns(Stake[] memory){
+    function getPageOfStakesDescending(uint256 pageNumber, uint256 perPage) public view returns(Stake[] memory pageOfStakes){
+        // Get the total amount remaining
+        uint256 totalWithdrawnStakes = _allStakes.length;
+
+        // Calculate the starting index
+        uint256 start = totalWithdrawnStakes > (pageNumber + 1) * perPage 
+                        ? totalWithdrawnStakes - (pageNumber + 1) * perPage 
+                        : 0;
+                        
+        // Calculate the end index
+        uint256 end = totalWithdrawnStakes > pageNumber * perPage 
+                    ? totalWithdrawnStakes - pageNumber * perPage 
+                    : 0;
+
+        // Calculate the size of the page
+        uint256 pageSize = end - start;
+
+        // Create the page array
+        pageOfStakes = new Stake[](pageSize);
+
+        // Populate the page array with the correct stakes
+        for (uint256 i = 0; i < pageSize; i++) {
+            pageOfStakes[pageSize - 1 - i] = _allStakes[start + i];
+        }
+
+        return pageOfStakes;
+    }
+
+    // Get and return a page of stakes
+    function getPageOfUsersStakesAscending(address user, uint256 pageNumber, uint256 perPage) public view returns(Stake[] memory){
         
         uint256[] memory usersStakeIndexes = _allUsersStakeIndexs[user];
 
@@ -190,6 +219,35 @@ contract KaijuFinanceStakeLockup is Ownable, ReentrancyGuard
         return pageOfStakes;
     }
 
+    function getPageOfUsersStakesDescending(address user, uint256 pageNumber, uint256 perPage) public view returns(Stake[] memory pageOfStakes){
+            
+        // Get the total amount remaining
+        uint256 totalStakes = _allUsersStakeIndexs[user].length;
+
+        // Calculate the starting index
+        uint256 start = totalStakes > (pageNumber + 1) * perPage 
+                            ? totalStakes - (pageNumber + 1) * perPage 
+                            : 0;
+                            
+        // Calculate the end index
+        uint256 end = totalStakes > pageNumber * perPage 
+                        ? totalStakes - pageNumber * perPage 
+                        : 0;
+
+        // Calculate the size of the page
+        uint256 pageSize = end - start;
+
+        // Create the page array
+        pageOfStakes = new Stake[](pageSize);
+
+        // Populate the page array with the correct stakes
+        for (uint256 i = 0; i < pageSize; i++) {
+           pageOfStakes[pageSize - 1 - i] = _allStakes[_allUsersStakeIndexs[user][start + i]];
+        }
+
+        return pageOfStakes;
+    }
+    
      // Get and return a page of withdrawn stakes
     function getPageOfWithdrawnStakesAscending(uint256 pageNumber, uint256 perPage) public view returns(WithdrawnStake[] memory){
         // Get the total amount remaining
@@ -226,7 +284,7 @@ contract KaijuFinanceStakeLockup is Ownable, ReentrancyGuard
     function getPageOfWithdrawnStakesDescending(uint256 pageNumber, uint256 perPage) public view returns(WithdrawnStake[] memory pageOfWithdrawnStakes){
         // Get the total amount remaining
         uint256 totalWithdrawnStakes = _allWithdrawnStakes.length;
-        
+
         // Calculate the starting index
         uint256 start = totalWithdrawnStakes > (pageNumber + 1) * perPage 
                         ? totalWithdrawnStakes - (pageNumber + 1) * perPage 
@@ -281,6 +339,36 @@ contract KaijuFinanceStakeLockup is Ownable, ReentrancyGuard
 
            // Increment page item index
            pageItemIndex++;
+        }
+
+        return pageOfWithdrawnStakes;
+    }
+
+    // Get and return a page of stakes
+    function getPageOfUsersWithdrawnStakesDescending(address user, uint256 pageNumber, uint256 perPage) public view returns(WithdrawnStake[] memory pageOfWithdrawnStakes){
+
+        // Get the total amount remaining
+        uint256 totalStakes = _allUsersWithdrawnStakeIndexs[user].length;
+
+        // Calculate the starting index
+        uint256 start = totalStakes > (pageNumber + 1) * perPage 
+                        ? totalStakes - (pageNumber + 1) * perPage 
+                        : 0;
+                        
+        // Calculate the end index
+        uint256 end = totalStakes > pageNumber * perPage 
+                    ? totalStakes - pageNumber * perPage 
+                    : 0;
+
+        // Calculate the size of the page
+        uint256 pageSize = end - start;
+
+        // Create the page array
+        pageOfWithdrawnStakes = new WithdrawnStake[](pageSize);
+
+        // Populate the page array with the correct stakes
+        for (uint256 i = 0; i < pageSize; i++) {
+            pageOfWithdrawnStakes[pageSize - 1 - i] = _allWithdrawnStakes[_allUsersWithdrawnStakeIndexs[user][start + i]];
         }
 
         return pageOfWithdrawnStakes;
