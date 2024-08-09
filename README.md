@@ -41,6 +41,10 @@ Deployers Address: 0x60e1C4DfB97e920D6C227cff4a0f39C4B560224B
 4. Deploy Stake lockup using the credit line address and the liquid token address as the constructor args
 5. Set owner of liquid token as the stake lockup contract
 
+### Notes
+
+- Stake Lockup contract requires deployment using optimization with 2k runs
+
 ## Workflow
 
 There are 4 main parts to the service. 
@@ -68,6 +72,8 @@ The credit calls can only be done via the owner of the contract. The reason for 
 The credit calls can only be done via the owner of the contract. The reason is because the user can pay back the loan using other currencioes not necessarily on a blockchain. The user should pay back loan amount (+ late fees if any) before this call is made.
 
 ![image](https://github.com/user-attachments/assets/7338619f-c9fd-4187-b632-c25f4b11aa34)
+
+
 
 
 
